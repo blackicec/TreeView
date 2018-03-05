@@ -1,0 +1,30 @@
+treeview {
+    background-color: black;
+    // Tree/Sub-Tree Expansion Icon
+    a[name="tree-expansion-icon"] {
+        &:hover {
+            cursor: pointer;
+        }
+        padding-right: 7px;
+    }
+
+     ul {
+         li {
+             // Remove the default circle markings from the list items
+             list-style: none;
+
+             // Class to show collapsed state
+             &.collapse {
+                display: none;
+             }
+
+             &:hover {
+                 cursor: pointer;
+             }
+
+             span:hover {
+                 background-color:dimgray;
+             }
+         }
+     }
+}
