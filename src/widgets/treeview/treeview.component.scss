@@ -1,7 +1,36 @@
-treeview {
-    background-color: black;
+#treeview_wrapper {    
+    // Scroll view
+    white-space: nowrap;
+    overflow: auto;
+
+    /* width */
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    /* Track */
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
+}
+
+#treeview {
+    $nodeSpanActiveBackground: rgb(211, 211, 211);
+    padding-left: 10px;
+
     // Tree/Sub-Tree Expansion Icon
-    a[name="tree-expansion-icon"] {
+    a[name="treeview-expansion-icon"] {
         &:hover {
             cursor: pointer;
         }
@@ -21,9 +50,26 @@ treeview {
              &:hover {
                  cursor: pointer;
              }
+             
+             span {                 
+                border-left: 0px solid;
+                transition: border-width 0.3s linear;
 
-             span:hover {
-                 background-color:dimgray;
+                padding-left: 2px;
+
+                &.treeview-active-node {
+                    border-left-width: 10px;
+                    background-color: $nodeSpanActiveBackground;
+                    height: 100%;
+                }
+
+                &:hover {
+                    background-color: $nodeSpanActiveBackground
+                }
+             }           
+
+             input[type=checkbox] {
+                 margin-right: 6px;
              }
          }
      }
