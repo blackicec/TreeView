@@ -3,9 +3,9 @@ import { TreeViewElement, TreewViewElementConfiguration } from '../../models/Tre
 import { ViewEncapsulation } from '@angular/core';
 
 @Component({
-    selector: 'treeview', 
-    templateUrl: './treeview.component.html',
-    styleUrls: ['./treeview.component.scss'],
+    selector: 'tree-view', 
+    templateUrl: './tree-view.component.html',
+    styleUrls: ['./tree-view.component.scss'],
     encapsulation: ViewEncapsulation.None
 })
 export class TreeViewComponent implements OnInit {
