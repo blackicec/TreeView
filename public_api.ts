@@ -1,1 +1,1 @@
-export * from './src/app/tree-view/tree-view.module'
+export * from './src/tree-view/tree-view.module'
