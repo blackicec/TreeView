@@ -38,6 +38,14 @@
     }
 
      ul {
+        i {
+            padding-right: 4px;
+         }
+
+         svg {
+            padding-right: 4px;
+         }
+         
          li {
              // Remove the default circle markings from the list items
              list-style: none;
@@ -48,9 +56,9 @@
              }
 
              &:hover {
-                 cursor: pointer;
+                cursor: pointer;
              }
-             
+
              span {                 
                 border-left: 0px solid;
                 transition: border-width 0.3s linear;

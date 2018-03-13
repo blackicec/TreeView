@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TreeViewElement, TreewViewElementConfiguration } from '../models/TreeViewElement';
+import { TreeViewElement, TreewViewElementConfiguration } from '../tree-view/TreeViewElement';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +20,22 @@ export class AppComponent {
 
   constructor() {
     this.treeViewModel = this.treeviewAsJson as TreeViewElement;
+
+    /*window.setInterval(() => {
+      var tree: TreeViewElement = {
+        name: 'New Tree' + new Date().getSeconds(),
+        id: 2,
+        children: [],
+        isActive: false,
+        isChecked: false,
+        isCollapsed: false
+      };
+
+      // NOTE: this.treeViewModel.name += 's'; does not trigger change. The entire object must be reset.
+
+      this.treeViewModel = tree;
+      console.log(this.treeViewModel.name);
+    }, 4000)*/
   }
 
   private OnActiveItemSelected(selectedItem: TreeViewElement): void {
@@ -30,12 +46,14 @@ export class AppComponent {
     idName: 'id',
     displayName: 'name',
     childrenArrayName: 'children',
-    displayCheckableOption: true,
+    displayCheckableOption: false,
     expandableIconClass: 'fa-angle-double-right',
     expandedIconClass: 'fa-angle-double-down',
+    activeNodeIndicatorColor: '#0099ff',
+
+    // NOTE: Leave as null or empty string to turn off parent and leaf icons
     parentIconClass: 'fa-folder',
-    leafIconClass: 'fa-folder-open',
-    activeNodeIndicatorColor: '#0099ff'
+    leafIconClass: 'fa-folder-open'    
   }
 
   private readonly treeviewAsJson: TreeViewElement = {
@@ -155,7 +173,7 @@ export class AppComponent {
               {
                 id: 3.9,
                 name: "Scale Grenades",
-                isActive: false,
+                isActive: true,
                 isChecked: false,
                 isCollapsed: false,
                 children: []

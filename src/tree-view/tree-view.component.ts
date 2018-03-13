@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { TreeViewElement, TreewViewElementConfiguration } from '../../models/TreeViewElement';
+import { TreeViewElement, TreewViewElementConfiguration } from './TreeViewElement';
 import { ViewEncapsulation } from '@angular/core';
 
 @Component({
@@ -9,14 +9,40 @@ import { ViewEncapsulation } from '@angular/core';
     encapsulation: ViewEncapsulation.None
 })
 export class TreeViewComponent implements OnInit {
-    @Input() treeViewModel: TreeViewElement;
+    @Input()
+    set treeViewModel(model: TreeViewElement) {
+        this.model = model;
+
+        // No need to rebuild the tree if this view has not been initailized yet
+        if(!this.isInitialized) {
+            return;
+        }
+
+        // Clear out existing tree and rebuild it
+        let treeView: Element = document.getElementById("treeview");
+
+        if(treeView.firstElementChild) {
+            treeView.firstElementChild.remove();
+        }
+
+        // Now rebuild the tree with the new Model
+        treeView.appendChild(this.buildHtmlView(this.model));
+    }
+    get treeViewModel(){
+        return this.model;
+    }
+    
     @Input() viewConfiguration: TreewViewElementConfiguration;
+    @Input() activeItemId: any;
+
     @Output() onActiveItemChanged: EventEmitter<TreeViewElement> = new EventEmitter<TreeViewElement>();
     @Output() onItemCheckedChanged: EventEmitter<TreeViewElement> = new EventEmitter<TreeViewElement>();
 
+    private model: TreeViewElement;
     private treeviewElementName: string = "treeview";
     private readonly activeNodeClassName: string = "treeview-active-node";
     private activeNode: HTMLSpanElement;
+    private isInitialized: boolean = false;
 
     public ngOnInit(): void {
         if(this.treeViewModel === undefined || this.treeViewModel === null) {
@@ -31,12 +57,22 @@ export class TreeViewComponent implements OnInit {
 
         // Now take our fully built tree and append it to the UI
         document.getElementById(this.treeviewElementName).appendChild(element);
+
+        this.isInitialized = true;
     }
 
     private buildHtmlView(model: TreeViewElement): HTMLLIElement {
-        let newTreeNode: HTMLLIElement = document.createElement("li")
-        let dropDownIndicator: HTMLAnchorElement = document.createElement("a")
+
+        // Not really anything to do without a configuration files
+        if(this.viewConfiguration === undefined || this.viewConfiguration === null) {
+            return document.createElement("li");
+        }
+
+        let newTreeNode: HTMLLIElement = document.createElement("li");
+        let dropDownIndicator: HTMLAnchorElement = document.createElement("a");
         let dropDownIcon: HTMLElement = document.createElement("i");
+        let parentIcon: HTMLElement = document.createElement("i");
+        let leafIcon: HTMLElement = document.createElement("i");
         let nodeName: HTMLSpanElement = document.createElement("span");
         let checkboxSelector: HTMLInputElement = document.createElement("input");
 
@@ -49,9 +85,16 @@ export class TreeViewComponent implements OnInit {
         nodeName.innerText = model[this.viewConfiguration.displayName];
         nodeName.style.borderLeftColor = this.viewConfiguration.activeNodeIndicatorColor;
         nodeName.setAttribute("name", "treeview-node-name");
-        nodeName.addEventListener("click", () => {
-            this.onActiveNodeChange(model, nodeName);
-        })
+
+        if(model.isRoot !== true) {
+            nodeName.addEventListener("click", () => {
+                this.onActiveNodeChange(model, nodeName);
+            })
+        }
+        
+        if(model.isActive || this.activeItemId == model.id) {
+            this.changeActiveNode(nodeName);
+        }
 
         if(this.viewConfiguration.displayCheckableOption) {
             checkboxSelector.setAttribute("type", "checkbox");
@@ -67,7 +110,7 @@ export class TreeViewComponent implements OnInit {
 
             dropDownIndicator.addEventListener("click", () => {
                 this.onChildViewChange(model, childRootList);
-            });            
+            });
             
             model.children.forEach(element => {
                 newTreeNode.appendChild(dropDownIndicator);
@@ -77,9 +120,13 @@ export class TreeViewComponent implements OnInit {
                 }
 
                 if(model.isCollapsed) {
-                    //console.log('Node collapsed: ', newTreeNode);
-                    //newTreeNode.classList.add('collapse-');
                     // TODO: Revisit collapsed state
+                }
+
+                // Add a parent icon if desired
+                if(this.viewConfiguration.parentIconClass && this.viewConfiguration.parentIconClass !== '') {
+                    parentIcon.classList.add('fa', 'fas', this.viewConfiguration.parentIconClass);
+                    newTreeNode.appendChild(parentIcon);
                 }
                 
                 newTreeNode.appendChild(nodeName);
@@ -88,12 +135,19 @@ export class TreeViewComponent implements OnInit {
                 childRootList.appendChild(this.buildHtmlView(element));
 
                 newTreeNode.appendChild(childRootList);
+
+                //TODO: Collapse: this.onChildViewChange(model, childRootList);
             });
         } else {
             if(this.viewConfiguration.displayCheckableOption) {
                 newTreeNode.appendChild(checkboxSelector);
             }
 
+            if(this.viewConfiguration.leafIconClass && this.viewConfiguration.leafIconClass !== '') {
+                leafIcon.classList.add('fa', 'fas', this.viewConfiguration.leafIconClass);
+                newTreeNode.appendChild(leafIcon);
+            }
+            
             newTreeNode.appendChild(nodeName);
         }       
 
@@ -106,7 +160,7 @@ export class TreeViewComponent implements OnInit {
         let parent: HTMLLIElement = childRootList.parentElement as HTMLLIElement;
         let iconAnchor: Element = parent.children.namedItem("treeview-expansion-icon");
 
-        if(iconAnchor != undefined) {
+        if(iconAnchor != undefined && iconAnchor != null) {
             let icon: Element = iconAnchor.firstElementChild;
             icon.classList.toggle(this.viewConfiguration.expandableIconClass);
             icon.classList.toggle(this.viewConfiguration.expandedIconClass);
@@ -152,16 +206,16 @@ export class TreeViewComponent implements OnInit {
 
     private setConfigurationDefaults() {
         if(this.viewConfiguration.widthInPixels === undefined) {
-            this.viewConfiguration.widthInPixels = 350;
+            this.viewConfiguration.widthInPixels = '100%';
         }
 
         if(this.viewConfiguration.heightInPixels === undefined) {
-            this.viewConfiguration.heightInPixels = 500;
+            this.viewConfiguration.heightInPixels = '500px';
         }
 
         let treeviewWrapper: HTMLElement = document.getElementById('treeview_wrapper');
 
-        treeviewWrapper.style.width = this.viewConfiguration.widthInPixels + 'px';
-        treeviewWrapper.style.height = this.viewConfiguration.heightInPixels + 'px';
+        treeviewWrapper.style.width = this.viewConfiguration.widthInPixels;
+        treeviewWrapper.style.height = this.viewConfiguration.heightInPixels;
     }
 }

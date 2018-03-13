@@ -19,6 +19,6 @@ export interface TreewViewElementConfiguration {
     leafIconClass: string;
     displayCheckableOption: boolean;
     activeNodeIndicatorColor: string;
-    widthInPixels?: number;
-    heightInPixels?: number;
+    widthInPixels?: string;
+    heightInPixels?: string;
 }
